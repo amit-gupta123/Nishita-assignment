@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RequestMapping("/emi-calculator")
 @Controller
 @RestController
@@ -15,45 +17,31 @@ public class EmiCalculator {
     // injecting services.
     private CalculateEMIService calculateEMIService = new CalculateEMIService();
 
-    // testing application
-
-    @RequestMapping("/test")
-    public String sayHi(){
-        return calculateEMIService.sayHi();
-    }
-
-
-
     // creating variable to store object.
     private EMIResultDTO emiResultDTO;
 
-    @GetMapping("/calculate")
-    public EMIResultDTO calculate( @RequestBody EMIDTO emiDTO){
-
-        System.out.println(emiDTO.getPaymentInterval());
-        System.out.println(emiDTO.getNoOfPayment());
-        System.out.println(emiDTO.getPrincipleAmount());
-        System.out.println(emiDTO.getRateOfInterest());
-
-
-        String paymentInterval = emiDTO.getPaymentInterval();
-        if(emiDTO.getPaymentInterval().toLowerCase().equals("monthly")){
-            emiResultDTO = calculateEMIService.calculateMonthlyEMI(emiDTO);
-
-        }
-
-        else if(emiDTO.getPaymentInterval().toLowerCase().equals("daily")){
-            emiResultDTO = calculateEMIService.calculateDailyEmi(emiDTO);
-        }
-        else if(emiDTO.getPaymentInterval().equals("yearly")){
-
-        }
-        else if(emiDTO.getPaymentInterval().toLowerCase().equals("weekly")){
-            emiResultDTO = calculateEMIService.calculateWeeklyEMI(emiDTO);
-        }
-        return emiResultDTO;
+    @RequestMapping("/test")
+    public String sayHi(){
+        return "Application is running fine";
     }
 
+    @GetMapping("/calculate")
+    public List<EMIResultDTO> calculate( @RequestBody EMIDTO emiDTO){
 
-
+        List<EMIResultDTO> emiResultDTOList = null;
+        String paymentInterval = emiDTO.getPaymentInterval();
+        if(emiDTO.getPaymentInterval().toLowerCase().equals("monthly")){
+              emiResultDTOList = calculateEMIService.calculateMonthlyEMI(emiDTO);
+        }
+        else if(emiDTO.getPaymentInterval().toLowerCase().equals("daily")){
+            emiResultDTOList = calculateEMIService.calculateDailyEmi(emiDTO);
+        }
+        else if(emiDTO.getPaymentInterval().toLowerCase().equals("yearly")){
+            emiResultDTOList = calculateEMIService.calculateYearlyEMI(emiDTO);
+        }
+        else if(emiDTO.getPaymentInterval().toLowerCase().equals("weekly")){
+            emiResultDTOList = calculateEMIService.calculateWeeklyEMI(emiDTO);
+        }
+        return emiResultDTOList;
+    }
 }

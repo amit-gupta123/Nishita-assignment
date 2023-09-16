@@ -1,9 +1,11 @@
 package com.amit.emi.dto;
 
+import com.amit.emi.constans.PaymentsInterval;
+
 public class EMIDTO {
     private String paymentInterval;
-    private int principleAmount;
-    private int rateOfInterest;
+    private double principleAmount;
+    private double rateOfInterest;
     private int noOfPayment;
 
 
@@ -15,7 +17,7 @@ public class EMIDTO {
         this.paymentInterval = paymentInterval;
     }
 
-    public int getPrincipleAmount() {
+    public double getPrincipleAmount() {
         return principleAmount;
     }
 
@@ -23,7 +25,7 @@ public class EMIDTO {
         this.principleAmount = principleAmount;
     }
 
-    public int getRateOfInterest() {
+    public double getRateOfInterest() {
         return rateOfInterest;
     }
 

@@ -7,56 +7,137 @@ import java.util.List;
 
 @Service
 public class CalculateEMIService {
+    List<EMIResultDTO> emiResultDTOList = null;
 
-    List<EMIResultDTO> miResultDTOList = new ArrayList<EMIResultDTO>();
-    public String sayHi(){
-        return "HI!, Set up is fine and working properly";
-    }
-
-    // get total interest
-
-//    private double getTotalInterest(Double monthlyEMI, int noOfMonth){
-//        double totalInterest = monthlyEMI*noOfMonth - ;
-//
-//    }
-
-    // calculates monthly EMI
-    public EMIResultDTO calculateMonthlyEMI(EMIDTO emidto){
-        // calculate and return emi
-
-        double monthlyRate = emidto.getRateOfInterest()/(12*100);
-        double principleAmount = emidto.getPrincipleAmount();
+    // methods to calculate EMI
+    public List<EMIResultDTO> calculateMonthlyEMI(EMIDTO emidto){
+        System.out.println("MONTHLY EMI");
+        emiResultDTOList = new ArrayList<EMIResultDTO>();
         int noOfPayment = emidto.getNoOfPayment();
-        // formula used to calculate monthly EMI
-        // P x R x (1+R)^N / [(1+R)^N-1]
-        double monthlyEmi = (principleAmount * monthlyRate * Math.pow((1+monthlyRate),noOfPayment))/
-                            Math.pow((1+monthlyRate),noOfPayment-1);
+        double principleAmount = emidto.getPrincipleAmount();
+        double remainingPrincipleAmount = principleAmount;
 
-        System.out.println(monthlyEmi);
-        double totalAmountPaid = monthlyEmi*noOfPayment;
-        System.out.println(totalAmountPaid);
-        double totalInterest = totalAmountPaid - principleAmount;
-        System.out.println(totalInterest);
-        EMIResultDTO emiResultDTO = new EMIResultDTO();
-        emiResultDTO.setTotalInterest(totalInterest);
-        emiResultDTO.setMonthlyEMI(monthlyEmi);
-        return emiResultDTO;
+//        // list to store rows of table
+//         emiResultDTOList = new ArrayList<>();
+
+        double monthlyRate = (emidto.getRateOfInterest()/12.0)/100.0;
+        double numerator = principleAmount * monthlyRate * Math.pow((1+monthlyRate),noOfPayment);
+        double denominator = Math.pow((1+monthlyRate),noOfPayment)-1;
+        double monthlyEmi = (double) (numerator/denominator);
+
+        double totalInterestPayment = 0.0;
+        for( int month = 1; month <= noOfPayment; month++ ){
+            double currentMonthInterestPayment = Math.round((remainingPrincipleAmount * monthlyRate)*100)/100.0;
+            totalInterestPayment+=currentMonthInterestPayment;
+            double currentMonthPrinciplePayment = Math.round((monthlyEmi - currentMonthInterestPayment)*100)/100.0;
+            remainingPrincipleAmount = Math.round((remainingPrincipleAmount - currentMonthPrinciplePayment)*100)/100.0;
+            emiResultDTOList.add(new EMIResultDTO(
+                    currentMonthInterestPayment,
+                    currentMonthPrinciplePayment,
+                    remainingPrincipleAmount,
+                    totalInterestPayment,
+                    monthlyEmi
+            ));
+        }
+
+        return emiResultDTOList;
     }
 
     //calculate daily EMI
-    public EMIResultDTO calculateDailyEmi(EMIDTO emidto){
-        return null;
+    public List<EMIResultDTO> calculateDailyEmi(EMIDTO emidto){
+
+        int noOfPayment = emidto.getNoOfPayment();
+        double principleAmount = emidto.getPrincipleAmount();
+        double remainingPrincipleAmount = principleAmount;
+
+        // list to store rows of table
+        emiResultDTOList = new ArrayList<>();
+
+        double dailyRate = (double)((emidto.getRateOfInterest()/365.0)/100.0);
+
+        double dailyEmi =  (double)((principleAmount * dailyRate * Math.pow((1+dailyRate),noOfPayment))/
+                (Math.pow((1+dailyRate),noOfPayment)-1));
+
+
+//        System.out.println(dailyRate);
+//        System.out.println(dailyEmi);
+        double totalInterestPayment = 0.0;
+        for( int day = 1; day <= noOfPayment; day++ ) {
+
+            double currentDayInterestPayment = Math.round((remainingPrincipleAmount * dailyRate)*100)/100.0;
+            totalInterestPayment += currentDayInterestPayment;
+            double currentDayPrinciplePayment = Math.round((dailyEmi - currentDayInterestPayment)*100)/100.0;
+            remainingPrincipleAmount = Math.round((remainingPrincipleAmount - currentDayPrinciplePayment)*100)/100.0;
+            emiResultDTOList.add(new EMIResultDTO(
+                    currentDayInterestPayment,
+                    currentDayPrinciplePayment,
+                    remainingPrincipleAmount,
+                    totalInterestPayment,
+                    dailyEmi
+            ));
+        }
+        return emiResultDTOList;
     }
 
+    // calculate weekly EMI
+    public List<EMIResultDTO> calculateWeeklyEMI(EMIDTO emidto){
 
-    // calcualte weekly EMI
-    public EMIResultDTO calculateWeeklyEMI(EMIDTO emidto){
-        return null;
+        emiResultDTOList = new ArrayList<EMIResultDTO>();
+
+        double principleAmount = emidto.getPrincipleAmount();
+        int noOfPayment = emidto.getNoOfPayment();
+        double rateOfInterest = emidto.getRateOfInterest();
+        double remainingPrincipleAmount = principleAmount;
+
+        double weeklyRate = (double)((rateOfInterest/52.0)/100.0);
+        double weeklyEMI =  (double)((principleAmount * weeklyRate * Math.pow((1+weeklyRate),noOfPayment))/
+                                    (Math.pow((1+weeklyRate),noOfPayment)-1));
+        //System.out.println(weeklyEMI);
+
+        double totalInterestPayment = 0.0;
+        for( int week = 1; week <= noOfPayment; week++ ){
+            double currentWeekInterestPayment = Math.round((remainingPrincipleAmount * weeklyRate)*100)/100.0;
+            totalInterestPayment += currentWeekInterestPayment;
+            double currentMonthPrinciplePayment = Math.round((weeklyEMI- currentWeekInterestPayment)*100)/100.0;
+            remainingPrincipleAmount = Math.round((remainingPrincipleAmount - currentMonthPrinciplePayment)*100)/100.0;
+            emiResultDTOList.add(new EMIResultDTO(
+                    currentWeekInterestPayment,
+                    currentMonthPrinciplePayment,
+                    remainingPrincipleAmount,
+                    totalInterestPayment,
+                    weeklyEMI
+            ));
+        }
+
+        return emiResultDTOList;
     }
-
 
     // calculate yearly EMI
-    public EMIResultDTO calculateYearlyEMI(EMIDTO emidto){
-        return null;
+    public List<EMIResultDTO> calculateYearlyEMI(EMIDTO emidto){
+        emiResultDTOList = new ArrayList<EMIResultDTO>();
+
+        double principleAmount = emidto.getPrincipleAmount();
+        int noOfPayment = emidto.getNoOfPayment();
+        double rateOfInterest = emidto.getRateOfInterest();
+        double remainingPrincipleAmount = principleAmount;
+        double yearlyEMI = (double)(principleAmount * 0.1 * Math.pow((1+0.1),noOfPayment)/(Math.pow((1+0.1),2)-1));
+        System.out.println(yearlyEMI);
+
+        double totalInterestPayment = 0.0;
+        for( int year = 1; year <= noOfPayment; year++ ){
+            double currentYearInterestPayment = Math.round((remainingPrincipleAmount * rateOfInterest/100)*100)/100.0;
+            totalInterestPayment += currentYearInterestPayment;
+            double currentMonthPrinciplePayment = Math.round((yearlyEMI - currentYearInterestPayment)*100)/100.0;
+            remainingPrincipleAmount = Math.round((remainingPrincipleAmount - currentMonthPrinciplePayment)*100)/100.0;
+            emiResultDTOList.add(new EMIResultDTO(
+                    currentYearInterestPayment,
+                    currentMonthPrinciplePayment,
+                    remainingPrincipleAmount,
+                    totalInterestPayment,
+                    yearlyEMI
+            ));
+        }
+
+        return emiResultDTOList;
     }
 }

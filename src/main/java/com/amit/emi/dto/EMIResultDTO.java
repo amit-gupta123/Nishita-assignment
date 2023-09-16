@@ -5,28 +5,26 @@ public class EMIResultDTO {
     private double interest;
     private double principle;
     private double totalInterest;
-    private double monthlyEMI;
+    private double EMI;
 
     public EMIResultDTO() {
 
     }
 
-    public EMIResultDTO(double balance, double interest, double principle, double totalInterest, double monthlyEMI) {
+    public EMIResultDTO(double interest, double principle, double balance, double totalInterest, double monthlyEMI) {
         this.balance = balance;
         this.interest = interest;
         this.principle = principle;
         this.totalInterest = totalInterest;
-        this.monthlyEMI = monthlyEMI;
+        this.EMI = monthlyEMI;
     }
 
-
-
-    public double getMonthlyEMI() {
-        return monthlyEMI;
+    public double getEMI() {
+        return EMI;
     }
 
-    public void setMonthlyEMI(double monthlyEMI) {
-        this.monthlyEMI = monthlyEMI;
+    public void setEMI(double monthlyEMI) {
+        this.EMI = monthlyEMI;
     }
 
     public double getTotalInterest() {
